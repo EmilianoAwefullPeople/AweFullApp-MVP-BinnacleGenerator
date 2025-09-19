@@ -1,0 +1,12 @@
+{
+    "name": "awe-binnacle-mvp",
+    "version": "1.0.0",
+    "description": "MVP for capturing awe moments with AI-enhanced binacles",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "axios": "^1.0.0"
+    }
+}

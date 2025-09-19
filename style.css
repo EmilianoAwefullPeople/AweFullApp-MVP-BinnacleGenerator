@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+}
+
+.input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.input-box {
+    flex: 1;
+    min-width: 300px;
+}
+
+#loading {
+    display: none;
+    text-align: center;
+    margin: 20px 0;
+}
+
+#binnacle-output {
+    display: none;
+    white-space: pre-wrap;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+button {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
