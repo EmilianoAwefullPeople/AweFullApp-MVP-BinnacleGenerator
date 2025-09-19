@@ -8,9 +8,25 @@
 </head>
 <body>
     <h1>Capture Your Moment of Awe</h1>
-    <!-- Input form will go here -->
-    <!-- Loading div will go here -->
-    <!-- Output display will go here -->
+    <div id="input-container" class="input-container">
+        <div class="input-box">
+            <label for="photo">Add 1 Photo of Your Awe Moment</label>
+            <input type="file" id="photo" accept="image/*" multiple>
+        </div>
+        <div class="input-box">
+            <label for="text">Describe Your Moment</label>
+            <textarea id="text" maxlength="200" placeholder="e.g., 'Golden light at Kinkaku-ji'"></textarea>
+            <span id="char-count">0/200 characters</span>
+        </div>
+        <div class="input-box">
+            <label for="place">Enter Place</label>
+            <input type="text" id="place" placeholder="e.g., 'Plaza Mayor'">
+        </div>
+    </div>
+    <p class="prompt">Use text, or text and a photo to capture awe!</p>
+    <button id="generate-btn">Generate Awe Binnacle</button>
+    <div id="loading" style="display: none;">Crafting Your Awe Binnacle…</div>
+    <div id="binnacle-output" style="display: none;"></div>
     <script src="script.js"></script>
 </body>
 </html>
