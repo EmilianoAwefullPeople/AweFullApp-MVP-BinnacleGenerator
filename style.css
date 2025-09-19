@@ -61,7 +61,7 @@ textarea {
     border-radius: 12px;
     background-color: transparent;
     color: white;
-    font-size: 1rem;
+    font-size: 0.85rem;
     outline: none;
     transition: all 0.3s ease;
 }
