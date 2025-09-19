@@ -3,30 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awe Binnacle MVP</title>
+    <title>AWE Binnacle</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Capture Your Moment of Awe</h1>
-    <div id="input-container" class="input-container">
-        <div class="input-box">
-            <label for="photo">Add 1 Photo of Your Experience of Awe</label>
-            <input type="file" id="photo" accept="image/*" multiple>
+    <div class="container">
+        <h1 class="title">AWE BINNACLE</h1>
+        <p class="subtitle">by Those AweFull People</p>
+        <div class="separator"></div>
+        <p class="instruction">Create your binnacle with the following info...</p>
+
+        <div class="input-group">
+            <input type="text" id="placeInput" placeholder="Examples: &quot;Plaza Mayor&quot;, &quot;Kyoto&quot;, &quot;Mexico&quot;" maxlength="50">
+            <label for="placeInput">Place / City / Country</label>
         </div>
-        <div class="input-box">
-            <label for="text">Describe Your Moment</label>
-            <textarea id="text" maxlength="200" placeholder="e.g., 'Astonishing views of Mount Fuji just before sunset, sharing with my wife.'"></textarea>
-            <span id="char-count">0/200 characters</span>
+
+        <div class="input-group">
+            <textarea id="descriptionInput" placeholder="Example: &quot;Amazed by Mount Fuji at sunset. Glad to experience it with my wife.&quot;" maxlength="200"></textarea>
+            <label for="descriptionInput">Description</label>
+            <div class="char-counter">0/200</div>
         </div>
-        <div class="input-box">
-            <label for="place">Enter Place</label>
-            <input type="text" id="place" placeholder="e.g., 'Plaza Mayor', 'Madrid', ''Kyoto">
+
+        <div class="image-upload-container">
+            <label for="imageUpload" class="image-upload-label">
+                <div class="plus-icon">+</div>
+                <div class="upload-text">Add 1 Picture</div>
+            </label>
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
         </div>
+
+        <button class="create-button">Create Binnacle</button>
     </div>
-    <p class="prompt">Use text, or text and a photo to capture awe!</p>
-    <button id="generate-btn">Generate Awe Binnacle</button>
-    <div id="loading" style="display: none;">Crafting Your Awe Binnacle…</div>
-    <div id="binnacle-output" style="display: none;"></div>
     <script src="script.js"></script>
 </body>
 </html>
