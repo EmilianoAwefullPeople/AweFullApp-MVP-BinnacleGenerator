@@ -3,7 +3,7 @@ const formidable = require('formidable');
 
 export const config = {
     api: {
-        bodyParser: false, // Handle FormData manually
+        bodyParser: false, // Disable default parsing for FormData
     },
 };
 
@@ -17,41 +17,38 @@ export default async function handler(req, res) {
 
     try {
         [fields, files] = await form.parse(req);
-        const { place, description } = fields;
+        const place = fields.place ? fields.place[0] : ''; // Formidable parses as arrays
+        const description = fields.description ? fields.description[0] : '';
         const image = files.image ? files.image[0] : null;
 
-        if (!place || !description) {
-            return res.status(400).json({ error: 'Missing place or description' });
+        if (!place || (!description && !image)) {
+            return res.status(400).json({ error: 'Add place and either text or photo' });
         }
 
-        const imageContext = image ? ` (accompanied by a photo of the moment)` : '';
-        const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }); // Madrid/Japan aware
+        const imageContext = image ? ` (from a photo capturing the scene)` : '';
+        const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }); // Adjust for Madrid/Japan as needed
 
-        // Hugging Face Prompt: Structured for PRD binnacle format
-        const prompt = `You are an awe-journaling AI inspired by Thomas Berry's vision of interconnectedness. Given a user's travel moment, generate a formatted "awe log" binnacle as a single, cohesive paragraph. Structure it exactly like this, using --- dividers:
+        // Prompt for Hugging Face: Constrains output to PRD structure
+        const prompt = `You are an awe-logging AI inspired by Thomas Berry's vision of interconnectedness and the Overview Effect. Given a user's moment of awe in [place: ${place}], generate a formatted "awe log" binnacle as a single, cohesive, copyable paragraph. Use exactly this structure with --- dividers:
 
-Moment in [place] at [time]: [User description + image context].
-Extra: [1-2 AI facts about the place/experience, drawing from knowledge].
-Reflection: [Short AI-aided insight on connection/meaning, evoking wonder and oneness].
+Moment in [place] at [time: ${currentTime}]: [User description: ${description}${imageContext}].
+Extra: [1-2 facts about the place/experience, including coords (e.g., 40.4154° N, 3.6836° W)].
+Reflection: [Short insight on connection/meaning, evoking wonder and oneness, plus 2-3 curiosity questions and an inspirational quote].
 
-Incorporate: coords (e.g., 40.4154° N, 3.6836° W for Madrid spots), a curiosity question, and an inspirational quote. Keep it narrative-driven, encouraging revisit/share. Be poetic yet concise.
+Keep it narrative-driven, poetic, concise (under 300 words), and value-packed to encourage sharing. Output ONLY the formatted binnacle text—no extra comments.`;
 
-User input: Place="${place}", Description="${description}${imageContext}", Time="${currentTime}".
-
-Output ONLY the formatted binnacle text.`;
-
-        // Call Hugging Face (free, public model)
+        // Call Hugging Face Inference API (free, no key for public model)
         const hfResponse = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1',
-            { inputs: prompt, parameters: { max_new_tokens: 300, temperature: 0.7 } },
+            { inputs: prompt, parameters: { max_new_tokens: 250, temperature: 0.7 } },
             { headers: { 'Content-Type': 'application/json' } }
         );
 
-        const binnacle = hfResponse.data[0]?.generated_text || 'Generation failed—try again for awe-inspired magic.';
+        const binnacle = hfResponse.data[0]?.generated_text.trim() || 'Awe generation paused—try again to connect with the moment.';
 
         return res.status(200).json({ binnacle });
     } catch (error) {
         console.error('Backend error:', error.message);
-        return res.status(500).json({ error: 'Failed to generate binnacle—perhaps the universe is pausing for deeper reflection.' });
+        return res.status(500).json({ error: 'Failed to generate binnacle. Check console for details.' });
     }
 }
