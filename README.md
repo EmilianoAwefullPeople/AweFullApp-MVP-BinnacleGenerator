@@ -1,5 +1,5 @@
 # AweFullApp-MVP-BinnacleGenerator
-MVP v1.0 of the AweFull People app. 
+MVP v1.0 of the AweFull People app. Simplified version for binnacle creation without AI APIs or integrations.
 
 -------
 
