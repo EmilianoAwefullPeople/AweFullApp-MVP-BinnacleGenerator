@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWE Binnacle MVP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000033;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+
+        .separator {
+            width: 50%;
+            height: 1px;
+            background-color: white;
+            margin: 24px auto;
+        }
+
+        .instruction {
+            font-style: italic;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid white;
+            border-radius: 12px;
+            background-color: transparent;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #a7d7f9;
+            box-shadow: 0 0 0 2px rgba(167, 215, 249, 0.3);
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        textarea {
+            resize: none;
+            min-height: 80px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .char-counter {
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .create-button, .quote-button, .copy-button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background-color: white;
+            color: #000033;
+            border: none;
+            border-radius: 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .create-button:hover, .quote-button:hover, .copy-button:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .quote-button, .copy-button {
+            display: none;
+        }
+
+        #loading {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        #binnacle-output {
+            text-align: left;
+            display: none;
+            white-space: pre-wrap;
+            background: #fff;
+            color: #000033;
+            padding: 20px;
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 400px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .instruction {
+                font-size: 1rem;
+            }
+            
+            .input-group {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">AWE BINNACLE</h1>
+        <p class="subtitle">by Those AweFull People</p>
+        <div class="separator"></div>
+        <p class="instruction">Create your binnacle with the following info...</p>
+
+        <div class="input-group">
+            <input type="text" id="placeInput" placeholder="Examples: &quot;Plaza Mayor&quot;, &quot;Kyoto&quot;, &quot;Mexico&quot;" maxlength="50">
+            <label for="placeInput">Place / City / Country</label>
+        </div>
+
+        <div class="input-group">
+            <textarea id="descriptionInput" placeholder="Example: &quot;Amazed by Mount Fuji at sunset. Glad to experience it with my wife.&quot;" maxlength="200"></textarea>
+            <label for="descriptionInput">Description</label>
+            <div class="char-counter">0/200</div>
+        </div>
+
+        <button class="create-button" onclick="generateBinnacle()">Create Binnacle</button>
+        <button class="quote-button" onclick="refreshQuote()">New Reflection Quote</button>
+        <button class="copy-button" onclick="copyBinnacle()">Copy to Clipboard</button>
+        <div id="loading">Crafting Your Awe Binnacle…</div>
+        <div id="binnacle-output"></div>
+    </div>
+
+    <script>
+        const descriptionInput = document.getElementById('descriptionInput');
+        const charCounter = document.querySelector('.char-counter');
+        const placeInput = document.getElementById('placeInput');
+        const loadingDiv = document.getElementById('loading');
+        const outputDiv = document.getElementById('binnacle-output');
+        const quoteButton = document.querySelector('.quote-button');
+        const copyButton = document.querySelector('.copy-button');
+
+        // Quotes array for random selection
+        const quotes = [
+            "Wonder opens the heart to the oneness of all life.",
+            "In pausing to reflect, we find the world within us.",
+            "Every journey outward is a step deeper inward.",
+            "Awe turns moments into eternal connections.",
+            "To travel is to weave your story into the web of life.",
+            "See the world, feel the universe, know your place in it.",
+            "Moments of wonder are sparks of meaning.",
+            "The beauty of the world mirrors the depth of your soul.",
+            "Connection to place is connection to all existence.",
+            "In every encounter, life speaks to itself."
+        ];
+
+        // Character counter
+        descriptionInput.addEventListener('input', () => {
+            const currentLength = descriptionInput.value.length;
+            charCounter.textContent = `${currentLength}/200`;
+            if (currentLength > 150) {
+                charCounter.style.color = '#ff4757';
+            } else if (currentLength > 100) {
+                charCounter.style.color = '#ff8c00';
+            } else {
+                charCounter.style.color = 'rgba(255, 255, 255, 0.5)';
+            }
+        });
+
+        // Generate binnacle
+        async function generateBinnacle() {
+            const place = placeInput.value.trim();
+            const description = descriptionInput.value.trim();
+
+            if (!place || !description) {
+                alert('Please add a place and description');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            outputDiv.style.display = 'none';
+            quoteButton.style.display = 'none';
+            copyButton.style.display = 'none';
+
+            const currentTime = new Date().toLocaleString();
+            const prompt = `Generate a formatted awe log binnacle as a single paragraph in this exact structure with --- dividers:
+
+Moment in [${place}] at [${currentTime}]: [${description}].
+Extra: [1-2 facts about the place, including coords].
+Reflection: [Short insight on connection/meaning, 2-3 curiosity questions, and an inspirational quote].
+
+Output ONLY the formatted binnacle text—no extra comments.`;
+
+            // Optional: Add your Hugging Face token here for higher limits (free signup at huggingface.co)
+            const token = 'hf_xxxxxxxxxx'; // Replace with your token or leave empty for public access
+
+            try {
+                const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token && { 'Authorization': `Bearer ${token}` })
+                    },
+                    body: JSON.stringify({
+                        inputs: prompt,
+                        parameters: { max_new_tokens: 200, temperature: 0.7 }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                let binnacle = data[0]?.generated_text.trim() || 'Generation failed';
+                
+                // Fallback mock if API returns empty or error
+                if (binnacle === 'Generation failed' || !binnacle.includes('---')) {
+                    binnacle = `Moment in ${place} at ${currentTime}: ${description}.
+Extra: A historic spot in Madrid, coords 40.4154° N, 3.6836° W.
+Reflection: This evokes interconnected stories—curiosity: How does it connect to your life? What stories does this place hold? Quote: "${getRandomQuote()}".`;
+                }
+
+                outputDiv.textContent = binnacle;
+                outputDiv.style.display = 'block';
+                quoteButton.style.display = 'block';
+                copyButton.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                // Fallback mock on error
+                outputDiv.textContent = 
+                    `Travel Binnacle...
+                    
+                    Place: ${place}
+                    Time: ${currentTime}
+                    ---
+                    ${description}
+                    ---
+                    Reflection quote: "${getRandomQuote()}"
+                    
+                    Powered by Those AweFull People`;
+                outputDiv.style.display = 'block';
+                quoteButton.style.display = 'block';
+                copyButton.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // Function to get a random quote
+        function getRandomQuote() {
+            return quotes[Math.floor(Math.random() * quotes.length)];
+        }
+
+        // Function to refresh only the quote in the reflection
+        function refreshQuote() {
+            if (outputDiv.style.display === 'block') {
+                const currentText = outputDiv.textContent;
+                const reflectionIndex = currentText.indexOf('Reflection:');
+                if (reflectionIndex !== -1) {
+                    // Find the start of the quote (after "Quote: ")
+                    const quoteStartIndex = currentText.indexOf('Quote: "', reflectionIndex);
+                    if (quoteStartIndex !== -1) {
+                        const quoteEndIndex = currentText.indexOf('"', quoteStartIndex + 8);
+                        if (quoteEndIndex !== -1) {
+                            const beforeQuote = currentText.substring(0, quoteStartIndex + 8);
+                            const afterQuote = currentText.substring(quoteEndIndex);
+                            const newQuote = getRandomQuote();
+                            outputDiv.textContent = `${beforeQuote}${newQuote}${afterQuote}`;
+                        } else {
+                            // If quote structure is malformed, replace entire reflection
+                            const beforeReflection = currentText.substring(0, reflectionIndex);
+                            const newQuote = getRandomQuote();
+                            outputDiv.textContent = 
+                                `${beforeReflection}Reflection: This evokes interconnected stories—curiosity: How does it connect to your life? What stories does this place hold? Quote: "${newQuote}".`;
+                        }
+                    } else {
+                        // If no quote in reflection, replace entire reflection
+                        const beforeReflection = currentText.substring(0, reflectionIndex);
+                        const newQuote = getRandomQuote();
+                        outputDiv.textContent = 
+                            `${beforeReflection}Reflection: This evokes interconnected stories—curiosity: How does it connect to your life? What stories does this place hold? Quote: "${newQuote}".`;
+                    }
+                } else {
+                    // If no reflection section, replace the existing reflection quote if it exists
+                    const reflectionQuoteIndex = currentText.indexOf('Reflection quote:');
+                    if (reflectionQuoteIndex !== -1) {
+                        const beforeReflectionQuote = currentText.substring(0, reflectionQuoteIndex);
+                        const newQuote = getRandomQuote();
+                        outputDiv.textContent = 
+                            `${beforeReflectionQuote}Reflection quote: "${newQuote}"
+                    
+                            Powered by Those AweFull People`;
+                    } else {
+                        // If no reflection section at all, append a new one
+                        outputDiv.textContent += `\nReflection quote: "${getRandomQuote()}"`;
+                    }
+                }
+            } else {
+                alert('Please generate a binnacle first.');
+            }
+        }
+
+        // Function to copy binnacle text to clipboard
+        function copyBinnacle() {
+            if (outputDiv.style.display === 'block') {
+                const textToCopy = outputDiv.textContent;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert('Binnacle copied to clipboard! Share your moment of awe.');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy binnacle. Please try again.');
+                });
+            } else {
+                alert('Please generate a binnacle first.');
+            }
+        }
+    </script>
+</body>
+</html>
